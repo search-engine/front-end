@@ -2,11 +2,9 @@
     <p ng-show="results.length === 0">
         <i>* no results found *</i>
     </p>
-    {{results}}
-    <!-- <div class="row" ng-repeat="result in results">
-    	{{results}} -->
-    	<!--div class="row" ng-repeat = "alt in result.ranks">
-        	<h3>{{alt.url}}</h3>
-    	</div-->
-    <!-- </div> -->
+    <div class="row" ng-repeat="result in results.urls">
+    	<!-- <div class="row" ng-repeat = "alt in result.ranks"> -->
+        	<h3>{{result}}</h3>
+    	<!-- </div> -->
+    </div>
 </div>
