@@ -58,6 +58,7 @@ module.exports = function(app) {
 				if(status === 0){
 					//normal case
   					User.findOne({word: item.toLowerCase()}, function (err, docs) {
+  						if(docs){
   						var ranking = docs.ranks;
         				for (var i = 0; i < ranking.length; i++) {
         					if(map.has(ranking[i].url)){
@@ -67,6 +68,7 @@ module.exports = function(app) {
         						map.set(ranking[i].url, ranking[i].score);
         					}
     					}
+    					}
     					status = 0;
     					console.log("done");
     					callback();
@@ -75,7 +77,9 @@ module.exports = function(app) {
   					//AND case
   					
   					User.findOne({word: item.toLowerCase()}, function (err, docs) {
-  						console.log("ANAND here");
+  						console.log("AND here");
+  						if(docs){
+  						console.log("doing AND stuff");
         				var ranking = docs.ranks;
         				var newMap = map.clone();
         				map.clear();
@@ -85,14 +89,19 @@ module.exports = function(app) {
         						map.set(ranking[i].url, (ranking[i].score+oldScore));
         					}
     					}
+    					}else{
+    						map.clear();
+    					}
     					status = 0;
+    					console.log("done");
     					callback();
         			});
   				}else{
   					//OR case
   					User.findOne({word: item.toLowerCase()}, function (err, docs) {
   						console.log("OR here");
-  						
+  						if(docs){
+  						console.log("doing OR stuff");
         				var ranking = docs.ranks;
         				for (var i = 0; i < ranking.length; i++) {
         					if(map.has(ranking[i].url)){
@@ -102,7 +111,9 @@ module.exports = function(app) {
         						map.set(ranking[i].url, ranking[i].score);
         					}
     					}
+    					}
     					status = 0;
+    					console.log("done");
     					callback();
         			});
   				}
@@ -123,7 +134,7 @@ module.exports = function(app) {
  	 		results["urls"] = urls;
  	 		//console.log(map.keys());
  	 		//console.log(map.values());
- 	 		//console.log(urls);
+ 	 		console.log(urls);
  	 		return res.send(results);
  		})
 	})
