@@ -60,12 +60,12 @@ module.exports = function(app) {
   					User.findOne({word: item.toLowerCase()}, function (err, docs) {
   						console.log("ANAND here");
         				var ranking = docs.ranks;
+        				var newMap = map.clone();
+        				map.clear();
         				for (var i = 0; i < ranking.length; i++) {
-        					if(map.has(ranking[i].url)){
-        						var oldScore = map.get(ranking[i].url);
+        					if(newMap.has(ranking[i].url)){
+        						var oldScore = newMap.get(ranking[i].url);
         						map.set(ranking[i].url, (ranking[i].score+oldScore));
-        					}else{
-        						map.set(ranking[i].url, ranking[i].score);
         					}
     					}
     					status = 0;
