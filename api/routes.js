@@ -93,8 +93,9 @@ module.exports = function(app) {
 		}, function done() {
  	 		//console.log("keys", map.keys());
  	 		var results = {};
- 	 		results(keys) = map.keys();
- 	 		results(maps) map.values();
+ 	 		results["keys"] = map.keys();
+ 	 		results["maps"] = map.values();
+ 	 		console.log(results);
  	 		return res.send(results);
  		})
 	})
