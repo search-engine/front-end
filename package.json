@@ -1,0 +1,22 @@
+{
+  "name": "front-end",
+  "version": "1.0.0",
+  "description": "search engin UI\u001b[D\u001b[D\u001b[D\u001b[D\u001b[Ce\u001b[C\u001b[C\u001b[D\u001b[D\u001b[D\u001b[C \u001b[C\u001b[D\u001b[3~\u001b[UI",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/search-engine/front-end.git"
+  },
+  "author": "Mega-Search",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/search-engine/front-end/issues"
+  },
+  "homepage": "https://github.com/search-engine/front-end#readme",
+  "dependencies": {
+    "express": "^4.13.4"
+  }
+}
