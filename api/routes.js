@@ -2,6 +2,23 @@ var mongoose = require('mongoose');
 var async = require('async');
 var HashMap = require('hashmap');
 
+//http://stackoverflow.com/questions/3730510/javascript-sort-array-and-return-an-array-of-indicies-that-indicates-the-positi
+function sortWithIndeces(toSort) {
+  for (var i = 0; i < toSort.length; i++) {
+    toSort[i] = [toSort[i], i];
+  }
+  toSort.sort(function(left, right) {
+    return left[0] > right[0] ? -1 : 1;
+  });
+  toSort.sortIndices = [];
+  for (var j = 0; j < toSort.length; j++) {
+    toSort.sortIndices.push(toSort[j][1]);
+    toSort[j] = toSort[j][0];
+  }
+  return toSort;
+}
+
+
 mongoose.connect('mongodb://localhost/search_engine', function (error) {
 		    if (error) {
 		        console.log(error);
@@ -93,12 +110,25 @@ module.exports = function(app) {
 		}, function done() {
  	 		//console.log("keys", map.keys());
  	 		var results = {};
- 	 		results["urls"] = map.keys();
- 	 		//results["maps"] = map.values();
- 	 		//console.log(results);
- 	 		return res.json(results);
+ 	 		var urls = [];
+ 	 		var finalRank = map.values();
+ 	 		var keys = map.keys();
+ 	 		sortWithIndeces(finalRank);
+ 	 		for(var i = 0; i < finalRank.sortIndices.length; i++){
+ 	 			//console.log(finalRank[i]);
+ 	 			//console.log(keys[i]);
+ 	 			urls.push(keys[finalRank.sortIndices[i]]);
+ 	 			//console.log(keys[i]);
+ 	 		}
+ 	 		results["urls"] = urls;
+ 	 		//console.log(map.keys());
+ 	 		//console.log(map.values());
+ 	 		//console.log(urls);
+ 	 		return res.send(results);
  		})
 	})
 
 
 }
+
+
