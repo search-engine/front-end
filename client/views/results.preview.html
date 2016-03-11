@@ -3,7 +3,8 @@
         <i>* no results found *</i>
     </p>
     <div class="row" ng-repeat="result in results">
-        <h3>{{result}}</h3>
-        </div>
+    	<div class="row" ng-repeat = "alt in result.ranks">
+        	<h3>{{alt.url}}</h3>
+    	</div>
     </div>
 </div>
