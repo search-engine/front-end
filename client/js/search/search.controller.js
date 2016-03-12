@@ -6,28 +6,21 @@ var searchApp = angular.module('search.controller', [])
 	}
 })
 .controller('SearchController', function ($scope, SearchService) {
-
-
-	// $scope.search = function(){
-	// 	SearchService.query({q: $scope.keywords}, function(response){
-	// 		$scope.results = response;
-	// 	});
-	// };
 	$scope.simResults = '';
 	$scope.selectedIndex = -1;
-	$scope.getSimilarTerms = function(){
-		SearchService.query({q: $scope.keywords}, function(response){
-			$scope.simResults = response;
-
+	$scope.search = function(){
+		SearchService.get({q: $scope.keywords}, function(response){
+			try {
+				$scope.results = response.urls;
+				$scope.similarTerms = response.similarTerms;
+			}catch(err) {
+				console.log(err);
+			}
 		});
+	}
 		$scope.similarTerms = [];
-		var maxTermList = 0;
 		for(var i= 0;i<$scope.simResults.length;i++){
 			$scope.similarTerms.push($scope.simResults[i].word);
-			maxTermList += 1;
-			if(maxTermList === 5){
-				break;
-			}
 		}
 
 		$scope.$watch('selectedIndex',function(val){
@@ -66,10 +59,4 @@ var searchApp = angular.module('search.controller', [])
 			$scope.keywords = $scope.similarTerms[index];
 			$scope.similarTerms = [];
 		}
-
-
-	}
-
-
-
 });

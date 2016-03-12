@@ -3,7 +3,7 @@
 <!-- ng-keydown="checkDownKey($event)" ng-keyup="checkUpKey($event)" -->
 	<form>
 		<div class="form-group">
-			<input type="text" class="form-control" ng-model="keywords"  ng-change="getSimilarTerms()">
+			<input type="text" class="form-control" ng-model="keywords"  ng-change="search()">
 
 			<ul class="terms-list">
 					<li ng-repeat="terms in similarTerms track by $index" ng-class="{active : selectedIndex === $index}" ng-click="selectedValue($index)">{{terms}}</li>
