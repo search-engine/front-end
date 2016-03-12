@@ -9,6 +9,8 @@ var searchApp = angular.module('search.controller', [])
 	$scope.simResults = '';
 	$scope.selectedIndex = -1;
 	$scope.search = function(){
+		if($scope.keywords === '')
+			$scope.similarTerms = [];
 		SearchService.get({q: $scope.keywords}, function(response){
 			try {
 				$scope.results = response.urls;
@@ -30,33 +32,8 @@ var searchApp = angular.module('search.controller', [])
 			}
 		});
 
-		$scope.checkDownKey = function(event){
-			if(event.keyCode === 40){
-				event.preventDefault();
-				if($scope.selectedIndex+1 !== $scope.similarTerms.length){
-					$scope.selectedIndex++;
-				}
-			}else if (event.keyCode === 38) {
-				event.preventDefault();
-				if($scope.selectedIndex-1 !== -1){
-					$scope.selectedIndex--;
-				}
-			}else if (event.keyCode === 13) {
-				event.preventDefault();
-				$scope.similarTerms = [];
-			}
-		}
-
-		$scope.checkUpKey = function(event){
-			if(event.keyCode !== 8 || event.keyCode !== 46){
-				if($scope.keywords == ""){
-					$scope.similarTerms = [];
-				}
-			}
-		}
-
 		$scope.selectedValue = function(index){
-			$scope.keywords = $scope.similarTerms[index];
+			$scope.keywords = $scope.similarTerms[index].word;
 			$scope.similarTerms = [];
 		}
 });

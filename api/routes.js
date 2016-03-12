@@ -49,14 +49,11 @@ module.exports = function(app) {
 		if(keys){ keywords = keys.split(" ");}
 
 		async.eachSeries(keywords, function (item, callback) {
-			console.log(item);
 			if(item === "AND"){
 				status = 1;
-				console.log("found ANAND")
 				callback();
 			}else if(item === "OR"){
 				status = 2;
-				console.log("found OR")
 				callback();
 			}else{
 				if(status === 0){
@@ -74,16 +71,13 @@ module.exports = function(app) {
     					}
     					}
     					status = 0;
-    					console.log("done");
     					callback();
         			});
   				}else if(status === 1){
   					//AND case
 
   					User.findOne({word: item.toLowerCase()}, function (err, docs) {
-  						console.log("AND here");
   						if(docs){
-  						console.log("doing AND stuff");
         				var ranking = docs.ranks;
         				var newMap = map.clone();
         				map.clear();
@@ -97,15 +91,12 @@ module.exports = function(app) {
     						map.clear();
     					}
     					status = 0;
-    					console.log("done");
     					callback();
         			});
   				}else{
   					//OR case
   					User.findOne({word: item.toLowerCase()}, function (err, docs) {
-  						console.log("OR here");
   						if(docs){
-  						console.log("doing OR stuff");
         				var ranking = docs.ranks;
         				for (var i = 0; i < ranking.length; i++) {
         					if(map.has(ranking[i].url)){
@@ -117,7 +108,6 @@ module.exports = function(app) {
     					}
     					}
     					status = 0;
-    					console.log("done");
     					callback();
         			});
   				}
@@ -130,22 +120,15 @@ module.exports = function(app) {
  	 		var keys = map.keys();
  	 		sortWithIndeces(finalRank);
  	 		for(var i = 0; i < finalRank.sortIndices.length; i++){
- 	 			//console.log(finalRank[i]);
- 	 			//console.log(keys[i]);
  	 			urls.push(keys[finalRank.sortIndices[i]]);
- 	 			//console.log(keys[i]);
  	 		}
  	 		results["urls"] = urls;
- 	 		//console.log(map.keys());
- 	 		//console.log(map.values());
- 	 		//console.log(urls);
 
 
 			if (keywords.length) {
 	        User.find({word:new RegExp('^'+keywords[keywords.length -1], 'i')}, 'word', function (err, docs) {
-							results["similarTerms"] = docs;
-							console.log(results);
-							return res.send(results);
+				results["similarTerms"] = docs;
+				return res.send(results);
 	        }).limit(5);
 	    }
  		})
