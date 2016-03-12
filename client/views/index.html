@@ -17,9 +17,23 @@
 	<script src="js/search/search.service.js"></script>
 
 </head>
+
+<style type="text/css">
+
+.terms-list li:hover{
+	background: #eeeeee;
+}
+.terms-list li:active,
+.terms-list li.active{
+	color: #FFFFFF;
+	background: #0099FF;
+	width: 234px;
+}
+</style>
+
 <body ng-app="app">
 <div class="container">
-	
+
 	<nav class="navbar navbar-inverse nav-fixed-top">
 		<div class="navbar-header">
 			<a class="navbar-brand" href="#">Search</a>
