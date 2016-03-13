@@ -1,6 +1,7 @@
 var mongoose = require('mongoose');
 var async = require('async');
 var HashMap = require('hashmap');
+var thesaurus = require('thesaurus');
 
 //http://stackoverflow.com/questions/3730510/javascript-sort-array-and-return-an-array-of-indicies-that-indicates-the-positi
 function sortWithIndeces(toSort) {
@@ -85,6 +86,13 @@ module.exports = function(app) {
 				status = 2;
 				callback();
 			}else{
+          var temp = thesaurus.find(item.toLowerCase());
+          var synonyms = [];
+          for(var i = 0; i < temp.length; i++){
+            synonyms.push(temp[i].replace(/[^a-z]/g, ""));
+            console.log(synonyms[i]);
+          }
+
   				User.findOne({word: item.toLowerCase()}, function (err, docs) {
   					if(docs){
   						var ranking = docs.ranks;

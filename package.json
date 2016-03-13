@@ -18,6 +18,7 @@
   "homepage": "https://github.com/search-engine/front-end#readme",
   "dependencies": {
     "express": "^4.13.4",
-    "mongoose": "^4.4.6"
+    "mongoose": "^4.4.6",
+    "thesaurus": "0.0.0"
   }
 }
