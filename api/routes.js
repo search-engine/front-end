@@ -89,26 +89,52 @@ module.exports = function(app) {
           var temp = thesaurus.find(item.toLowerCase());
           var synonyms = [];
           for(var i = 0; i < temp.length; i++){
-            synonyms.push(temp[i].replace(/[^a-z]/g, ""));
-            console.log(synonyms[i]);
+            synonyms.push(temp[i].replace(/[^a-zA-Z]/g, ""));
           }
+          var synMap = new HashMap();
+          async.eachSeries(synonyms, function(syn, cb){
+            User.findOne({word: syn.toLowerCase()}, function (err1, doc) {
+              if(doc){
+                var rk = doc.ranks;
+                for(var i=0; i < rk.length; i++){
+                  if(synMap.has(rk[i].url)){
+                    var oldScore = synMap.get(rk[i].url);
+                    synMap.set(rk[i].url, (rk[i].score > oldScore ? rk[i].score : oldScore));
+                  }else{
+                    synMap.set(rk[i].url, rk[i].score);
+                  }
+                }
+              }
+            })
+            cb();
+          }, function done(){
+            User.findOne({word: item.toLowerCase()}, function (err, docs) {
+    					if(docs){
+    						var ranking = docs.ranks;
+                for (var i = 0; i < ranking.length; i++) {
+                  synMap.set(ranking[i].url, (ranking[i].score+2));
+                }
 
-  				User.findOne({word: item.toLowerCase()}, function (err, docs) {
-  					if(docs){
-  						var ranking = docs.ranks;
-        				for (var i = 0; i < ranking.length; i++) {
-        					if(map2.has(ranking[i].url)){
-        						var oldScore = map2.get(ranking[i].url);
-        						map2.set(ranking[i].url, (ranking[i].score+oldScore + 1));
-        					}else{
-        						map2.set(ranking[i].url, ranking[i].score);
-        					}
-    					}
-    				}
-    				//status = 0;
-    				callback();
-        		});
-  			}
+                synMap.forEach(function(v, k){
+                  if(map2.has(k)){
+                    var oldScore = map2.get(k);
+                    map2.set(k, (oldScore+v+1));
+                  }else{
+                    map2.set(k, v);
+                  }
+                });
+          				// for (var i = 0; i < ranking.length; i++) {
+          				// 	if(map2.has(ranking[i].url)){
+          				// 		var oldScore = map2.get(ranking[i].url);
+          				// 		map2.set(ranking[i].url, (ranking[i].score+oldScore + 1));
+          				// 	}else{
+          				// 		map2.set(ranking[i].url, ranking[i].score);
+          				// 	}
+      					  // }
+      				}
+            });
+          });
+          callback();
 		}, function done() {
 			doOperation();
  	 		//console.log("keys", map.keys());
