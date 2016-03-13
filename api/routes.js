@@ -20,21 +20,21 @@ function sortWithIndeces(toSort) {
 }
 
 mongoose.connect('mongodb://localhost/search_engine', function (error) {
-		    if (error) {
-		        console.log(error);
-		    }
-		});
-		var Schema = mongoose.Schema;
-		var userSchema = new Schema({
-    		word: String ,
-    		ranks: [{
-    			score: Number,
-    			url: String
-    		}]
-		},{ collection: 'index' });
+	if (error) {
+		console.log(error);
+	}
+});
+var Schema = mongoose.Schema;
+var userSchema = new Schema({
+    word: String ,
+    ranks: [{
+    	score: Number,
+    	url: String
+    }]
+},{ collection: 'index' });
 
-		var User = mongoose.model('index', userSchema);
-		module.exports = User;
+var User = mongoose.model('index', userSchema);
+module.exports = User;
 
 module.exports = function(app) {
 	app.get('/api/search/results', function(req, res){
@@ -86,56 +86,65 @@ module.exports = function(app) {
 				status = 2;
 				callback();
 			}else{
-          var temp = thesaurus.find(item.toLowerCase());
-          var synonyms = [];
-          for(var i = 0; i < temp.length; i++){
-            synonyms.push(temp[i].replace(/[^a-zA-Z]/g, ""));
-          }
-          var synMap = new HashMap();
-          async.eachSeries(synonyms, function(syn, cb){
-            User.findOne({word: syn.toLowerCase()}, function (err1, doc) {
-              if(doc){
-                var rk = doc.ranks;
-                for(var i=0; i < rk.length; i++){
-                  if(synMap.has(rk[i].url)){
-                    var oldScore = synMap.get(rk[i].url);
-                    synMap.set(rk[i].url, (rk[i].score > oldScore ? rk[i].score : oldScore));
-                  }else{
-                    synMap.set(rk[i].url, rk[i].score);
-                  }
-                }
-              }
-            })
-            cb();
-          }, function done(){
-            User.findOne({word: item.toLowerCase()}, function (err, docs) {
+				var itemLowerCase = item.toLowerCase()
+         	 	var temp = thesaurus.find(itemLowerCase);
+          		var synonyms = [];
+          		for(var i = 0; i < temp.length; i++){
+          			var tempLowerCase = temp[i].toLowerCase();
+          			if(temp[i].includes(" ")) continue;
+          			if(itemLowerCase === tempLowerCase) continue;
+            		synonyms.push(temp[i].replace(/[^a-zA-Z]/g, "").toLowerCase());
+          		}
+          		console.log("the words for ", item);
+          		var synMap = new HashMap();
+          		async.eachSeries(synonyms, function(syn, cb){
+          			//console.log(syn);
+            		User.findOne({word: syn}, function (err1, doc) {
+            			//console.log(doc);
+              			if(doc){
+                			var rk = doc.ranks;
+                			for(var i=0; i < rk.length; i++){
+                  				if(synMap.has(rk[i].url)){
+                    				var oldScore = synMap.get(rk[i].url);
+                    				//console.log("put 1");
+                    				synMap.set(rk[i].url, (rk[i].score > oldScore ? rk[i].score : oldScore));
+                  				}else{
+                  					//console.log("put 2");
+                    				synMap.set(rk[i].url, rk[i].score);
+                  				}
+                			}
+              			}
+            		})
+            		cb();
+          		}, function done(){
+          			//console.log(synMap.count());
+            		User.findOne({word: itemLowerCase}, function (err, docs) {
     					if(docs){
+    						//console.log(synMap.count());
+    						//console.log("has doc");
     						var ranking = docs.ranks;
-                for (var i = 0; i < ranking.length; i++) {
-                  synMap.set(ranking[i].url, (ranking[i].score+2));
-                }
+    						//console.log(ranking.length);
+                			for (var i = 0; i < ranking.length; i++) {
+                  				synMap.set(ranking[i].url, (ranking[i].score+2));
+                			}
+                		}
+                		synMap.forEach(function(v, k){
+                  			if(map2.has(k)){
+                    			var oldScore = map2.get(k);
+                    			map2.set(k, (oldScore+v+1));
+                    			//console.log(k, "new score", (oldScore+v+1));
+                  			}else{
+                    			map2.set(k, v);
+                    			console.log(k, "score", v);
+                  			}});
+                			callback();
+      					});
 
-                synMap.forEach(function(v, k){
-                  if(map2.has(k)){
-                    var oldScore = map2.get(k);
-                    map2.set(k, (oldScore+v+1));
-                  }else{
-                    map2.set(k, v);
-                  }
-                });
-          				// for (var i = 0; i < ranking.length; i++) {
-          				// 	if(map2.has(ranking[i].url)){
-          				// 		var oldScore = map2.get(ranking[i].url);
-          				// 		map2.set(ranking[i].url, (ranking[i].score+oldScore + 1));
-          				// 	}else{
-          				// 		map2.set(ranking[i].url, ranking[i].score);
-          				// 	}
-      					  // }
-      				}
-            });
-          });
-          callback();
+            			
+            	});
+          	}
 		}, function done() {
+			//console.log(map2.count());
 			doOperation();
  	 		//console.log("keys", map.keys());
  	 		var results = {};
@@ -146,15 +155,13 @@ module.exports = function(app) {
  	 		for(var i = 0; i < finalRank.sortIndices.length; i++){
  	 			urls.push(keys[finalRank.sortIndices[i]]);
  	 		}
- 	 		results["urls"] = urls;
-
-
-			if (keywords.length) {
-	        User.find({word:new RegExp('^'+keywords[keywords.length -1], 'i')}, 'word', function (err, docs) {
-				results["similarTerms"] = docs;
-				return res.send(results);
-	        }).limit(5);
-	    }
- 		})
+ 	 			results["urls"] = urls;
+				if (keywords.length) {
+	        		User.find({word:new RegExp('^'+keywords[keywords.length -1], 'i')}, 'word', function (err, docs) {
+						results["similarTerms"] = docs;
+						return res.send(results);
+	        		}).limit(5);
+	    		}
+ 		});
 	})
 }
