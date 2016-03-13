@@ -95,10 +95,10 @@ module.exports = function(app) {
           			if(itemLowerCase === tempLowerCase) continue;
             		synonyms.push(temp[i].replace(/[^a-zA-Z]/g, "").toLowerCase());
           		}
-          		// console.log("the words for ", item);
+          		console.log("the word is", item);
           		var synMap = new HashMap();
           		async.eachSeries(synonyms, function(syn, cb){
-          			//console.log(syn);
+          			console.log(syn);
             		User.findOne({word: syn}, function (err1, doc) {
             			//console.log(doc);
               			if(doc){
@@ -114,13 +114,13 @@ module.exports = function(app) {
                   				}
                 			}
               			}
+              			cb();
             		})
-            		cb();
           		}, function done(){
           			//console.log(synMap.count());
             		User.findOne({word: itemLowerCase}, function (err, docs) {
     					if(docs){
-    						//console.log(synMap.count());
+    						//console.log("1",synMap.count());
     						//console.log("has doc");
     						var ranking = docs.ranks;
     						//console.log(ranking.length);
@@ -136,11 +136,11 @@ module.exports = function(app) {
                   			}else{
                     			map2.set(k, v);
                     			// console.log(k, "score", v);
-                  			}});
-                			callback();
-      					});
-
-
+                  			}
+                  		});
+                  		//console.log("2",map2.count());
+                		callback();
+      				});
             	});
           	}
 		}, function done() {
