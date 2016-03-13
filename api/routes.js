@@ -91,7 +91,7 @@ module.exports = function(app) {
         				for (var i = 0; i < ranking.length; i++) {
         					if(map2.has(ranking[i].url)){
         						var oldScore = map2.get(ranking[i].url);
-        						map2.set(ranking[i].url, (ranking[i].score+oldScore));
+        						map2.set(ranking[i].url, (ranking[i].score+oldScore + 1));
         					}else{
         						map2.set(ranking[i].url, ranking[i].score);
         					}
@@ -100,7 +100,7 @@ module.exports = function(app) {
     				//status = 0;
     				callback();
         		});
-  			}	
+  			}
 		}, function done() {
 			doOperation();
  	 		//console.log("keys", map.keys());
