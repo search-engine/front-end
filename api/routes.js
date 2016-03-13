@@ -18,7 +18,6 @@ function sortWithIndeces(toSort) {
   return toSort;
 }
 
-
 mongoose.connect('mongodb://localhost/search_engine', function (error) {
 		    if (error) {
 		        console.log(error);
@@ -44,75 +43,66 @@ module.exports = function(app) {
 		var keys = req.query.q;
 		var keywords = [];
 		var map = new HashMap();
+		var map2 = new HashMap();
 		var status = 0;
+
+		function doOperation(){
+			//console.log(status);
+			if(status === 0){
+				map = map2.clone();
+			}else if(status === 1){
+				var newMap = map.clone();
+        		map.clear();
+        		newMap.forEach(function(value, key){
+        			if(map2.has(key)){
+        				var oldScore = map2.get(key);
+        				map.set(key, oldScore+value);
+        			}
+        		});
+			}else{
+				map2.forEach(function(value, key){
+					if(map.has(key)){
+						var oldScore = map.get(key);
+						map.set(key, (oldScore > value ? oldScore : value));
+					}else{
+						map.set(key, value);
+					}
+				});
+			}
+			map2.clear();
+		}
+
 
 		if(keys){ keywords = keys.split(" ");}
 
 		async.eachSeries(keywords, function (item, callback) {
 			if(item === "AND"){
+				doOperation();
 				status = 1;
 				callback();
 			}else if(item === "OR"){
+				doOperation();
 				status = 2;
 				callback();
 			}else{
-				if(status === 0){
-					//normal case
-  					User.findOne({word: item.toLowerCase()}, function (err, docs) {
-  						if(docs){
+  				User.findOne({word: item.toLowerCase()}, function (err, docs) {
+  					if(docs){
   						var ranking = docs.ranks;
         				for (var i = 0; i < ranking.length; i++) {
-        					if(map.has(ranking[i].url)){
-        						var oldScore = map.get(ranking[i].url);
-        						map.set(ranking[i].url, (ranking[i].score+oldScore));
+        					if(map2.has(ranking[i].url)){
+        						var oldScore = map2.get(ranking[i].url);
+        						map2.set(ranking[i].url, (ranking[i].score+oldScore));
         					}else{
-        						map.set(ranking[i].url, ranking[i].score);
+        						map2.set(ranking[i].url, ranking[i].score);
         					}
     					}
-    					}
-    					status = 0;
-    					callback();
-        			});
-  				}else if(status === 1){
-  					//AND case
-
-  					User.findOne({word: item.toLowerCase()}, function (err, docs) {
-  						if(docs){
-        				var ranking = docs.ranks;
-        				var newMap = map.clone();
-        				map.clear();
-        				for (var i = 0; i < ranking.length; i++) {
-        					if(newMap.has(ranking[i].url)){
-        						var oldScore = newMap.get(ranking[i].url);
-        						map.set(ranking[i].url, (ranking[i].score+oldScore));
-        					}
-    					}
-    					}else{
-    						map.clear();
-    					}
-    					status = 0;
-    					callback();
-        			});
-  				}else{
-  					//OR case
-  					User.findOne({word: item.toLowerCase()}, function (err, docs) {
-  						if(docs){
-        				var ranking = docs.ranks;
-        				for (var i = 0; i < ranking.length; i++) {
-        					if(map.has(ranking[i].url)){
-        						var oldScore = map.get(ranking[i].url);
-        						map.set(ranking[i].url, (ranking[i].score > oldScore? ranking[i].score : oldScore));
-        					}else{
-        						map.set(ranking[i].url, ranking[i].score);
-        					}
-    					}
-    					}
-    					status = 0;
-    					callback();
-        			});
-  				}
-  			}
+    				}
+    				//status = 0;
+    				callback();
+        		});
+  			}	
 		}, function done() {
+			doOperation();
  	 		//console.log("keys", map.keys());
  	 		var results = {};
  	 		var urls = [];
