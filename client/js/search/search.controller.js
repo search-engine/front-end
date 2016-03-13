@@ -9,8 +9,10 @@ var searchApp = angular.module('search.controller', [])
 	$scope.simResults = '';
 	$scope.selectedIndex = -1;
 	$scope.search = function(){
-		if($scope.keywords === '')
+		if($scope.keywords === '') {
 			$scope.similarTerms = [];
+			$scope.results = [];
+		}
 		SearchService.get({q: $scope.keywords}, function(response){
 			try {
 				$scope.results = response.urls;
