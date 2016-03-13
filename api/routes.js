@@ -95,7 +95,7 @@ module.exports = function(app) {
           			if(itemLowerCase === tempLowerCase) continue;
             		synonyms.push(temp[i].replace(/[^a-zA-Z]/g, "").toLowerCase());
           		}
-          		console.log("the words for ", item);
+          		// console.log("the words for ", item);
           		var synMap = new HashMap();
           		async.eachSeries(synonyms, function(syn, cb){
           			//console.log(syn);
@@ -135,12 +135,12 @@ module.exports = function(app) {
                     			//console.log(k, "new score", (oldScore+v+1));
                   			}else{
                     			map2.set(k, v);
-                    			console.log(k, "score", v);
+                    			// console.log(k, "score", v);
                   			}});
                 			callback();
       					});
 
-            			
+
             	});
           	}
 		}, function done() {
